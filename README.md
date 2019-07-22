@@ -14,12 +14,12 @@ a part in the same row in A of some contiguous partition greater than k (i.e., t
 
 Clone or download the generate-all-partition-arrays repository to your machine and place it in a directory accessible by [Julia](https://julialang.org).
 
-Be sure you have Julia version 1.1.0 or above.
+Be sure you have Julia version 1.1.0 or above as well as the Combinatorics, DelimitedFiles, and Statistics packages.
 
 
 ## Usage
 
-The GenerateAllPartitionArray algorithm can be run from the command line in the Julia REPL environment with two commands:
+The GenerateAllPartitionArray algorithm can be run from the command line in the Julia REPL with the following two commands:
 
 ```julia
 
@@ -29,7 +29,7 @@ include("GenerateAllPartitionArray.jl")
 
 ```
 
-Note that functionality depends on the Combinatorics, DelimitedFiles, and Statistics packages, which may need to be installed in Julia prior to running.
+The default matrix is one constructed by Babbitt having the following characteristics: 6 x 96 requiring 58 partitions and 120 overlaps. After initial preprocessing, you will be prompted to select whether or not you would like the algorithm to run with search heuristics. It is recommended that you do so. You are also given the option of selecting which heuristics to use.
 
 
 # Authors and acknowledgment
