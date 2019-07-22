@@ -44,9 +44,9 @@ module GenerateAllPartitionArray
 
 
 #= Read in input matrix from file =#
-#const inputMatrix = readdlm("Babbitt_6_96.txt", '\t', Int8, '\n')   # as found e.g., in Babbitt's Arie da Capo
+const inputMatrix = readdlm("Babbitt_6_96.txt", '\t', Int8, '\n')   # as found e.g., in Babbitt's Arie da Capo
 #const inputMatrix = readdlm("Smalley_6_96.txt", '\t', Int8, '\n')  # as found e.g., in Babbitt's Sheer Pluck (constructed by David Smalley)
-const inputMatrix = readdlm("Babbitt_4_96.txt", '\t', Int8, '\n')  # as found e.g., in Babbitt's My Ends are My Beginings
+#const inputMatrix = readdlm("Babbitt_4_96.txt", '\t', Int8, '\n')  # as found e.g., in Babbitt's My Ends are My Beginings
 
 
 #= Define primary types =#

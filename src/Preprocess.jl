@@ -95,9 +95,9 @@ function requestUserInputToSelectHeuristics(arraySpecs, reservedPartitions, allC
     end
     if userChoiceHeuristic[1] != 0
         println("\n", "Select the options below if you are using any of the following input matrix types:","\n")
-        println("Babbitt(6,96):","\t","1 search heuristic and ", 13, " (i.e., maximum)","\n")
-        println("Smalley(6,96):","\t","0 search heuristic and ", 22, " (i.e., maximum)","\n")
-        println("Babbitt(4,96):","\t","1 search heuristic and ", 1,"\n")
+        println("Babbitt(6,96):","\t","1 search heuristic and ", 13, " (i.e., maximum)", " reserved partitions","\n")
+        println("Smalley(6,96):","\t","0 search heuristic and ", 22, " (i.e., maximum)", " reserved partitions","\n")
+        println("Babbitt(4,96):","\t","1 search heuristic and ", 1, " reserved partitions","\n")
 
         # ask for user input for selecting the search heuristic
         userInput = ""
@@ -214,7 +214,7 @@ function groupCompositionsByPartition(lexCompositions, numRows, numPartitions)
     end
     # normalize probabilities
     probabilities = (probabilities .- minimum(probabilities))/(maximum(probabilities) - minimum(probabilities))
-    return allCompositions, dictPartComps, minMaxParts, probabilities # compute probs from range in dictPartComps? Composite type for these?
+    return allCompositions, dictPartComps, minMaxParts, probabilities
 end
 
 

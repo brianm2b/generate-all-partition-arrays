@@ -59,7 +59,6 @@ function searchMatrixForCoveringOfCandidates(inputMatrix, allCompositions, reser
             if isempty(allCandidateLists[cnt]) # no list of candidates found at this cnt for current position
                 # backtrack
                 if isless(1, cnt)
-                    #cnt, position, allCandidateLists[cnt + one(eltype(cnt))], usedPartitions[cnt + one(eltype(cnt))], selected.candidates[cnt + one(eltype(cnt))], selected.overlaps[cnt + one(eltype(cnt))] = backtrack(position, cnt, allCandidateLists[cnt - one(eltype(cnt))][selected.candidates[cnt - one(eltype(cnt))]], selected.overlaps[cnt - one(eltype(cnt))])
                     cnt, position, allCandidateLists, usedPartitions, selected = backtrack(cnt, position, allCandidateLists, usedPartitions, selected)
                 else
                     cnt, allCandidateLists[1], usedPartitions[1], selected.candidates[1], selected.overlaps[1] = backtrack(cnt)
@@ -67,7 +66,6 @@ function searchMatrixForCoveringOfCandidates(inputMatrix, allCompositions, reser
                 numBacktracks += 1
             else # list of candidates found at this cnt for current position
                 cnt, position, usedPartitions[cnt - one(eltype(cnt))] = success(position, cnt, allCandidateLists[cnt][selected.candidates[cnt]], selected.overlaps[cnt])
-                #println(selected.candidates)
             end
         else # backtracked to a previously computed list of candidates at this cnt
             selected.overlaps[cnt] += one(eltype(selected.overlaps)) # choose next overlaps for previously selected candidate (may or may not have candidate overlaps)
@@ -76,7 +74,6 @@ function searchMatrixForCoveringOfCandidates(inputMatrix, allCompositions, reser
                 if isless(size(allCandidateLists[cnt], 1), selected.candidates[cnt]) # list has no remaining candidates to select
                     # backtrack
                     if isless(1, cnt)
-                        #cnt, position, allCandidateLists[cnt + one(eltype(cnt))], usedPartitions[cnt + one(eltype(cnt))], selected.candidates[cnt + one(eltype(cnt))], selected.overlaps[cnt + one(eltype(cnt))] = backtrack(position, cnt, allCandidateLists[cnt - one(eltype(cnt))][selected.candidates[cnt - one(eltype(cnt))]], selected.overlaps[cnt - one(eltype(cnt))])
                         cnt, position, allCandidateLists, usedPartitions, selected = backtrack(cnt, position, allCandidateLists, usedPartitions, selected)
                     else
                         cnt, allCandidateLists[1], usedPartitions[1], selected.candidates[1], selected.overlaps[1] = backtrack(cnt)
@@ -85,11 +82,9 @@ function searchMatrixForCoveringOfCandidates(inputMatrix, allCompositions, reser
                 else # list has at least one remaining candidate (selected above)
                     selected.overlaps[cnt] = one(eltype(selected.overlaps)) # select first overlaps of newly selected candidate
                     cnt, position, usedPartitions[cnt - one(eltype(cnt))] = success(position, cnt, allCandidateLists[cnt][selected.candidates[cnt]], selected.overlaps[cnt])
-                    #println(selected.candidates)
                 end
             else # previously selected candidate has at least one remaining overlaps to select
                 cnt, position, usedPartitions[cnt - one(eltype(cnt))] = success(position, cnt, allCandidateLists[cnt][selected.candidates[cnt]], selected.overlaps[cnt])
-                #println(selected.candidates)
             end
         end
         farthestReached = printProgress(selected, farthestReached, cnt) # print furthest position reached 
@@ -219,11 +214,10 @@ function findCandidateCompositionsAtPosition(searchMatrix, position, cnt,
     if isempty(candidateList)
         return candidateList, zero(Int32), zero(Int16)
     end
-    # Break ties in rank using probs?
     return candidateList[sortCandidatesByHeuristicScore(candidateScores)], one(Int32), one(Int16) # sorted candidates by heuristic score
 end
 
-# 3 idealpositions: 1.66 for all, difference (+/-) from 1.66 for each, and avg. difference (+/-) from 1.66 for all
+
 """
     findIdealPosition()
 
@@ -233,18 +227,15 @@ Determines the "ideal" row positions of a sequence of candidates up to a given c
 function findIdealPosition(cnt, position, chosenHeuristics, arraySpecs)
     # offsets is how far off the previous candidate was from ideal
     offsets = position - fill!(ones(Float16, length(position)), (cnt - 1 * round((arraySpecs.numCols) / arraySpecs.numPartitions, digits=3)))
-    #if cnt == 1
-    #    offsets = zeros(Float16,length(position))
-    #end
-    if isequal(chosenHeuristics.offset, 0) # constant ideal position (as used in BemmanMeredithJNMR2016, heuristic D in BemmanMeredithISMIR2019)
+    if isequal(chosenHeuristics.offset, 0) # constant ideal position (as introduced in BemmanMeredithJNMR2016, heuristic D in BemmanMeredithISMIR2019)
         # ideal position after having chosen a candidate at this cnt
-        idealPos = fill!(ones(Float16, arraySpecs.numRows), (cnt * round((arraySpecs.numCols)/ arraySpecs.numPartitions, digits=3))) # 6-row: cnt * 1.66
+        idealPos = fill!(ones(Float16, arraySpecs.numRows), (cnt * round((arraySpecs.numCols)/ arraySpecs.numPartitions, digits=3))) # e.g., 6-row: cnt * 1.66
     end
     if isequal(chosenHeuristics.offset, 1) # difference in magnitude and direction for each row (heuristic S in BemmanMeredithISMIR2019)
-        idealPos = fill!(ones(Float16, arraySpecs.numRows), (cnt * round(((arraySpecs.numCols) / arraySpecs.numPartitions), digits=3))) - offsets #
+        idealPos = fill!(ones(Float16, arraySpecs.numRows), (cnt * round(((arraySpecs.numCols) / arraySpecs.numPartitions), digits=3))) - offsets
     end
-     #if isequal(chosenHeuristics.offset, 2) # average difference in magnitude and direction (i.e., same for all rows)
-    #    idealPos = fill!(ones(Float16, arraySpecs.numRows), (cnt * round(((arraySpecs.numCols) / arraySpecs.numPartitions) - mean(offsets), digits=3))) #
+    #if isequal(chosenHeuristics.offset, 2) # average difference in magnitude and direction (i.e., same for all rows)
+    #    idealPos = fill!(ones(Float16, arraySpecs.numRows), (cnt * round(((arraySpecs.numCols) / arraySpecs.numPartitions) - mean(offsets), digits=3)))
     #end
     return idealPos
 end
@@ -307,15 +298,6 @@ function compositionSatisfiesUnUsedPartitionsConstraint(position, composition, m
         # not been enough overlaps (or too many parts) used in a single row
         return false
     end
-    # tests the curent position NOT the composition
-    #if isless(position[j] + last(sumUnUsedParts), numCols + one(eltype(composition)))
-        # not been enough parts (or too many overlaps) used in a single row
-    #    return false
-    #end
-    #if isless(last(sumUnUsedParts) - composition[j], numCols - position[j] + composition[j] - one(eltype(composition))) # subtract overlap?
-        # not been enough parts (or too many overlaps) used in a single row
-    #    return false
-    #end
     return true
 end
 
@@ -462,15 +444,13 @@ end
 """
     judgeQualityOfCandidate()
 
-An improved heuristic based on BemmanMeredithJNMR2016 where how far off a candidate is from an "ideal position" is
-used to adjust the next "ideal position".
+An improved heuristic based on BemmanMeredithJNMR2016 where how far off a candidate is from a previous "ideal position" is
+used to adjust the current ideal position.
 """
 function judgeQualityOfCandidate(idealRegion, candidateOverlaps, composition, position, idealPos)
     scores = zeros(Float16, size(candidateOverlaps,1))
     for i=1:length(scores)
         scores[i] = sum(abs, position + composition[1:end-1] - candidateOverlaps[i, :] .- 1 - idealPos)
-        #scores[i] = abs(sum(abs, position + composition[1:end-1] - candidateOverlaps[i, :] .- 1 - idealPos) - idealRegion) # -1 necessary?
-        #scores[i] = sum(position + composition[1:end-1] - candidateOverlaps[i, :] .- 1 - idealPos)
     end
     locs = sortperm(scores)
     candidateOverlaps = candidateOverlaps[locs,:]
@@ -528,7 +508,7 @@ end
 function backtrack(cnt, position, allCandidateLists, usedPartitions, selected)
     allCandidateLists[cnt] = Array{Candidate,1}()
     usedPartitions[cnt] = zero(Int8)
-    selected.candidates[cnt] = zero(Int32) # use only candidates to control (allCandidatesLists is too big)?
+    selected.candidates[cnt] = zero(Int32)
     selected.overlaps[cnt] = zero(Int16)
     cnt -= one(eltype(cnt))
     position -= allCandidateLists[cnt][selected.candidates[cnt]].composition - allCandidateLists[cnt][selected.candidates[cnt]].overlaps[selected.overlaps[cnt], :]
@@ -546,7 +526,7 @@ function printProgress(selected, farthestReached, cnt)
     # > print only the farthest so far
     if cnt > farthestReached
         farthestReached = cnt
-        #println(selected.candidates)
+        println(selected.candidates)
     end
     return farthestReached
 end
@@ -558,7 +538,7 @@ end
 Prints to console the results of the search.
 """
 function printSearchResults(selected, allCandidateLists, cnt, inputMatrix, numBacktracks)
-    if selected.candidates[1] == 0
+    if isequal(0, cnt)
         println("No solution possible.")
     end
     #println("All successful candidates with all overlaps:")
